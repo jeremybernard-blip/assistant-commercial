@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f1923">
+<title>Assistant Commercial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #0f1923; --bg2: #1a2636; --bg3: #243347;
+    --accent: #c8a96e;
+    --text: #f0ebe3; --text2: #9aabbc; --text3: #5a7080;
+    --green: #4caf88; --green-bg: #1a3028;
+    --blue: #5b9bd5; --blue-bg: #1a2a3d;
+    --border: rgba(200,169,110,0.15); --border2: rgba(200,169,110,0.3);
+    --radius: 14px; --radius-sm: 8px;
+  }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Lato', sans-serif; overflow-x: hidden; }
+  body { display: flex; flex-direction: column; min-height: 100vh; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px 12px; background: var(--bg); border-bottom: 0.5px solid var(--border); position: sticky; top: 0; z-index: 10; }
+  .logo { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 400; color: var(--accent); }
+  .logo span { color: var(--text2); font-size: 12px; font-family: 'Lato', sans-serif; font-weight: 300; display: block; letter-spacing: 0.1em; text-transform: uppercase; margin-top: -2px; }
+  .clear-btn { background: none; border: 0.5px solid var(--border); color: var(--text3); font-size: 12px; font-family: 'Lato', sans-serif; padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+  .scroll-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 20px 16px 200px; }
+  .section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .section-label::after { content: ''; flex: 1; height: 0.5px; background: var(--border); }
+  textarea { width: 100%; min-height: 140px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px; color: var(--text); font-family: 'Lato', sans-serif; font-size: 15px; font-weight: 300; line-height: 1.7; resize: none; outline: none; transition: border-color 0.2s; -webkit-appearance: none; }
+  textarea:focus { border-color: var(--border2); }
+  textarea::placeholder { color: var(--text3); }
+  .mic-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; margin-bottom: 24px; }
+  .mic-btn { display: flex; align-items: center; gap: 8px; background: none; border: 0.5px solid var(--border2); color: var(--text2); font-family: 'Lato', sans-serif; font-size: 13px; padding: 8px 16px; border-radius: 999px; cursor: pointer; transition: all 0.2s; }
+  .mic-btn.recording { border-color: #c0392b; color: #e74c3c; background: rgba(192,57,43,0.1); }
+  .mic-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .mic-btn.recording .mic-dot { animation: blink 0.7s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+  .chars { margin-left: auto; font-size: 12px; color: var(--text3); }
+  .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+  .action-btn { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 18px 14px; cursor: pointer; text-align: center; transition: all 0.2s; position: relative; overflow: hidden; }
+  .action-btn::before { content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity 0.2s; }
+  .btn-mail::before { background: radial-gradient(circle at 50% 0%, rgba(91,155,213,0.15), transparent 70%); }
+  .btn-rapport::before { background: radial-gradient(circle at 50% 0%, rgba(76,175,136,0.15), transparent 70%); }
+  .action-btn:active { transform: scale(0.97); }
+  .action-btn:active::before { opacity: 1; }
+  .action-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-ico { margin-bottom: 6px; }
+  .btn-title { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--text); display: block; line-height: 1.2; }
+  .btn-sub { font-size: 11px; color: var(--text3); }
+  .output-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: border-color 0.3s; }
+  .output-card.mail { border-color: rgba(91,155,213,0.4); }
+  .output-card.rapport { border-color: rgba(76,175,136,0.4); }
+  .output-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg3); border-bottom: 0.5px solid var(--border); }
+  .output-badge { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; }
+  .badge-mail { background: var(--blue-bg); color: var(--blue); }
+  .badge-rapport { background: var(--green-bg); color: var(--green); }
+  .badge-empty { background: var(--bg3); color: var(--text3); border: 0.5px solid var(--border); }
+  .copy-btn { display: flex; align-items: center; gap: 5px; background: none; border: 0.5px solid var(--border); color: var(--text2); font-family: 'Lato', sans-serif; font-size: 12px; padding: 6px 12px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s; }
+  .copy-btn.copied { border-color: var(--green); color: var(--green); }
+  .output-body { padding: 18px 16px; min-height: 100px; }
+  .placeholder { text-align: center; color: var(--text3); font-size: 13px; padding: 20px 0; }
+  .result-text { font-size: 14px; line-height: 1.8; color: var(--text); font-weight: 300; white-space: pre-wrap; }
+  .loader { display: flex; justify-content: center; gap: 6px; padding: 24px 0; }
+  .loader span { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: bounce 1.1s infinite; }
+  .loader span:nth-child(2) { animation-delay: 0.18s; }
+  .loader span:nth-child(3) { animation-delay: 0.36s; }
+  @keyframes bounce { 0%,80%,100%{ transform: scale(0.6); opacity: 0.4; } 40%{ transform: scale(1); opacity: 1; } }
+  .err { color: #e74c3c; font-size: 13px; background: rgba(231,76,60,0.1); border-radius: var(--radius-sm); padding: 12px 14px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo">Actes &amp; Mots<span>Assistant Commercial</span></div>
+  <button class="clear-btn" onclick="clearAll()">Effacer</button>
+</div>
+<div class="scroll-area">
+  <div class="section-label">Vos notes</div>
+  <textarea id="inputText" placeholder="Ex : vu Mme Martin chez Dupont SAS mardi, satisfaite du dernier contrat, souhaite étendre à 3 sites, demande un geste sur le tarif, relancer jeudi…" oninput="updateChars()"></textarea>
+  <div class="mic-row">
+    <button class="mic-btn" id="micBtn" onclick="toggleMic()">
+      <span class="mic-dot"></span>
+      <span id="micLabel">Dicter</span>
+    </button>
+    <span class="chars" id="chars">0 car.</span>
+  </div>
+  <div class="section-label">Transformer en</div>
+  <div class="action-grid">
+    <button class="action-btn btn-mail" onclick="generate('mail')">
+      <div class="btn-ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5b9bd5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></div>
+      <span class="btn-title">E-mail</span>
+      <div class="btn-sub">professionnel</div>
+    </button>
+    <button class="action-btn btn-rapport" onclick="generate('rapport')">
+      <div class="btn-ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4caf88" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+      <span class="btn-title">Rapport</span>
+      <div class="btn-sub">de visite</div>
+    </button>
+  </div>
+  <div class="section-label">Résultat</div>
+  <div class="output-card" id="outputCard">
+    <div class="output-header">
+      <span class="output-badge badge-empty" id="badge">En attente</span>
+      <button class="copy-btn" id="copyBtn" onclick="copyResult()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span id="copyLabel">Copier</span>
+      </button>
+    </div>
+    <div class="output-body">
+      <div class="placeholder" id="placeholder">Le résultat apparaîtra ici</div>
+      <div class="loader" id="loader" style="display:none"><span></span><span></span><span></span></div>
+      <div class="result-text" id="result" style="display:none"></div>
+      <div class="err" id="err" style="display:none"></div>
+    </div>
+  </div>
+</div>
+<script>
+  const inputEl = document.getElementById('inputText');
+  let recognition = null, isRec = false;
+
+  function updateChars() {
+    const n = inputEl.value.length;
+    document.getElementById('chars').textContent = n + ' car.';
+  }
+
+  function clearAll() {
+    inputEl.value = ''; updateChars();
+    document.getElementById('placeholder').style.display = 'block';
+    document.getElementById('result').style.display = 'none';
+    document.getElementById('err').style.display = 'none';
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('badge').className = 'output-badge badge-empty';
+    document.getElementById('badge').textContent = 'En attente';
+    document.getElementById('outputCard').className = 'output-card';
+  }
+
+  function toggleMic() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { alert("Dictée non supportée — utilisez Chrome ou Safari."); return; }
+    if (isRec) { recognition.stop(); return; }
+    recognition = new SR();
+    recognition.lang = 'fr-FR';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    let base = inputEl.value;
+    recognition.onresult = e => {
+      let fin = '', tmp = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        if (e.results[i].isFinal) fin += e.results[i][0].transcript;
+        else tmp += e.results[i][0].transcript;
+      }
+      inputEl.value = base + fin + tmp;
+      if (fin) base += fin;
+      updateChars();
+    };
+    recognition.onend = () => stopMic();
+    recognition.start();
+    isRec = true;
+    document.getElementById('micBtn').classList.add('recording');
+    document.getElementById('micLabel').textContent = 'Arrêter';
+  }
+
+  function stopMic() {
+    isRec = false;
+    document.getElementById('micBtn').classList.remove('recording');
+    document.getElementById('micLabel').textContent = 'Dicter';
+  }
+
+  async function generate(type) {
+    const text = inputEl.value.trim();
+    if (!text) {
+      inputEl.style.borderColor = 'rgba(231,76,60,0.6)';
+      inputEl.focus();
+      setTimeout(() => { inputEl.style.borderColor = ''; }, 1500);
+      return;
+    }
+    document.getElementById('placeholder').style.display = 'none';
+    document.getElementById('result').style.display = 'none';
+    document.getElementById('err').style.display = 'none';
+    document.getElementById('loader').style.display = 'flex';
+    document.querySelectorAll('.action-btn').forEach(b => b.disabled = true);
+
+    const card = document.getElementById('outputCard');
+    const badge = document.getElementById('badge');
+    let prompt;
+
+    if (type === 'mail') {
+      card.className = 'output-card mail';
+      badge.className = 'output-badge badge-mail';
+      badge.textContent = 'E-mail commercial';
+      prompt = `Tu es un assistant commercial expert. Transforme ces notes brutes en un e-mail commercial professionnel en français.
+Le ton doit être chaleureux et humain, mais toujours professionnel et orienté business.
+Structure : objet accrocheur, salutation chaleureuse, corps clair et engageant, call-to-action précis, formule de politesse sincère.
+Donne uniquement l'e-mail, sans commentaire.
+Notes : ${text}`;
+    } else {
+      card.className = 'output-card rapport';
+      badge.className = 'output-badge badge-rapport';
+      badge.textContent = 'Rapport de visite';
+      prompt = `Tu es un assistant commercial expert. Transforme ces notes brutes en un rapport de visite professionnel en français.
+Le ton doit être factuel mais vivant — chaleureux sans être familier, commercial sans être froid.
+Structure : contexte, interlocuteur(s), points clés, opportunités, actions à mener avec échéances.
+Donne uniquement le rapport, sans commentaire.
+Notes : ${text}`;
+    }
+
+    try {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      document.getElementById('result').textContent = data.text;
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch(e) {
+      document.getElementById('err').textContent = 'Erreur : ' + e.message;
+      document.getElementById('err').style.display = 'block';
+    } finally {
+      document.getElementById('loader').style.display = 'none';
+      document.querySelectorAll('.action-btn').forEach(b => b.disabled = false);
+    }
+  }
+
+  function copyResult() {
+    const text = document.getElementById('result').textContent;
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copyBtn');
+      btn.classList.add('copied');
+      document.getElementById('copyLabel').textContent = 'Copié !';
+      setTimeout(() => { btn.classList.remove('copied'); document.getElementById('copyLabel').textContent = 'Copier'; }, 2200);
+    });
+  }
+</script>
+</body>
+</html>
